@@ -9,7 +9,16 @@ package frc.robot;
 
 import frc.robot.gamepad.OI;
 import frc.robot.subsystems.DriveBase;
+import frc.robot.subsystems.OMS;
+
+import java.util.HashMap;
+import java.util.Map;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.commands.Teleop;
+import frc.robot.commands.TeleopOMS;
+import frc.robot.commands.auto.AutoCommand;
+import frc.robot.commands.auto.DriveFoward;
 
 public class RobotContainer {
 
@@ -18,14 +27,28 @@ public class RobotContainer {
    */
   public static DriveBase drivebase;
   public static OI oi;
+  public static OMS oms;
+
+  public static SendableChooser<String> autoChooser;
+  public static Map<String, AutoCommand> autoMode = new HashMap<>();
+  
 
   public RobotContainer()
   {
       //Create new instances
       drivebase = new DriveBase();
       oi = new OI();
+      oms = new OMS();
       
       //Set the default command for the training subsytem
-      drivebase.setDefaultCommand(new Teleop());
+      drivebase.setDefaultCommand(new Teleop());  
+      oms.setDefaultCommand(new TeleopOMS());
   }
-}
+
+    //@return
+
+    public Command getAutonomousCommand() {
+      String mode =autoChooser.getSelected();
+      return autoMode.getOrDefault(mode, new DriveFoward());
+    }
+  }
