@@ -8,7 +8,12 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.commands.auto.AutoCommand;
+import frc.robot.commands.auto.DriveFoward;
+import frc.robot.commands.auto.DriveFowardWithPid;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -47,6 +52,19 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void disabledInit() {
+    if (null == RobotContainer.autoChooser)
+    {
+        RobotContainer.autoChooser = new SendableChooser<>();
+    }
+    RobotContainer.autoChooser.setDefaultOption("Drive Foward", "Drive Forward");
+    RobotContainer.autoMode.put("Drive Foward", new DriveFoward());
+    AddAutoMode(RobotContainer.autoChooser, "Drive Foward withPID", new DriveFowardWithPid());
+    SmartDashboard.putData(RobotContainer.autoChooser);
+  }
+
+  public void AddAutoMode(SendableChooser<String>chooser, String auto, AutoCommand cmd){
+    chooser.addOption(auto, auto);
+    RobotContainer.autoMode.put(auto, cmd);
   }
 
   @Override
