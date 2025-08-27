@@ -14,6 +14,7 @@ import frc.robot.subsystems.OMS;
 import java.util.HashMap;
 import java.util.Map;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.commands.Teleop;
 import frc.robot.commands.TeleopOMS;
@@ -43,6 +44,12 @@ public class RobotContainer {
       //Set the default command for the training subsytem
       drivebase.setDefaultCommand(new Teleop());  
       oms.setDefaultCommand(new TeleopOMS());
+      
+       //seleção de instancias
+        autoChooser = new SendableChooser<>();
+        autoChooser.setDefaultOption("Drive Forward", "DriveForward");
+        autoChooser.addOption("Drive Forward with PID", "DriveFowardWithPid");
+        SmartDashboard.putData("Auto Mode", autoChooser);  // Isso vai colocar no SmartDashboard
   }
 
     //@return
