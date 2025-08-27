@@ -87,6 +87,7 @@ public class DriveBase extends SubsystemBase {
         rightMotor.set(rightSpeed);
         backMotor.set(backSpeed * 1.7);
         ///1,8 é o valor de ajuste pra roda traseira mais aceitavel que consegui pelos testes, 27/08
+        ///commit esquecido, resolvido agora.
     }
 
     public double getLeftEncoderDistance() {
