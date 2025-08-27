@@ -49,6 +49,7 @@ public class RobotContainer {
         autoChooser = new SendableChooser<>();
         autoChooser.setDefaultOption("Drive Forward", "DriveForward");
         autoChooser.addOption("Drive Forward with PID", "DriveFowardWithPid");
+        autoChooser.addOption("Rotate180WithPid", "Rotate180WithPid");
         SmartDashboard.putData("Auto Mode", autoChooser);  // Isso vai colocar no SmartDashboard
   }
 

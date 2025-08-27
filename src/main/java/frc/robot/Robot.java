@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.commands.auto.AutoCommand;
 import frc.robot.commands.auto.DriveFoward;
 import frc.robot.commands.auto.DriveFowardWithPid;
+import frc.robot.commands.auto.Rotate180WithPid;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -60,6 +61,7 @@ public class Robot extends TimedRobot {
     RobotContainer.autoChooser.setDefaultOption("Drive Foward", "Drive Forward");
     RobotContainer.autoMode.put("Drive Foward", new DriveFoward());
     AddAutoMode(RobotContainer.autoChooser, "Drive Foward withPID", new DriveFowardWithPid());
+    AddAutoMode(RobotContainer.autoChooser, "Rotate180WithPid", new Rotate180WithPid());
     SmartDashboard.putData(RobotContainer.autoChooser);
   }
 
