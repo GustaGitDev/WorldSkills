@@ -65,23 +65,29 @@ public class DriveBase extends SubsystemBase {
     }
 
     public void holonomicDrive(final double x, final double y, final double z) {
-        double rightSpeed = ((x/3) - (y/Math.sqrt(3)) + z) * Math.sqrt(3);
-        double leftSpeed = ((x/3) + (y / Math.sqrt(3)) + z) * Math.sqrt(3);
-        double backSpeed = (-2 * x /3) + z;
-
+        double rightSpeed = ((x / 3) - (y / Math.sqrt(3)) + z) * Math.sqrt(3);
+        double leftSpeed = ((x / 3) + (y / Math.sqrt(3)) + z) * Math.sqrt(3);
+        double backSpeed = (-2 * x / 3) + z;
+    
         double max = Math.abs(rightSpeed);
         if (Math.abs(leftSpeed) > max) max = Math.abs(leftSpeed);
         if (Math.abs(backSpeed) > max) max = Math.abs(backSpeed);
-
-        if (max > 1)
-        rightSpeed /= max;
-        leftSpeed /= max;
-        backSpeed/= max;
     
-    leftMotor.set(leftSpeed);
-    rightMotor.set(rightSpeed);
-    backMotor.set(backSpeed);
-}
+        if (max > 1) {
+            rightSpeed /= max;
+            leftSpeed /= max;
+            backSpeed /= max;
+        }
+    
+        // Ajuste de calibração para alinhar os motores
+        double motorAdjustmentFactor = 1.0; // Ajuste o valor para compensar qualquer diferença
+        if (Math.abs(leftSpeed) < 0.1) leftSpeed *= motorAdjustmentFactor; 
+        if (Math.abs(rightSpeed) < 0.1) rightSpeed *= motorAdjustmentFactor;
+    
+        leftMotor.set(leftSpeed);
+        rightMotor.set(rightSpeed);
+        backMotor.set(backSpeed);
+    }
 
     public double getleftEncoderDistance()
     {

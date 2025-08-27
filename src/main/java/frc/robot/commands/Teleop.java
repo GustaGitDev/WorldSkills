@@ -49,7 +49,7 @@ public class Teleop extends CommandBase {
         inputRightX = ramp(inputRightX, prevRightX);
         inputRightY = ramp(inputRightY, prevRightY);
 
-        // Atualiza os valores anteriores
+        //// Atualiza os valores anteriores
         prevLeftX = inputLeftX;
         prevLeftY = inputLeftY;
         prevRightX = inputRightX;
