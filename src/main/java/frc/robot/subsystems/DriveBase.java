@@ -1,143 +1,78 @@
 package frc.robot.subsystems;
 
-import com.kauailabs.navx.frc.AHRS;
-import com.studica.frc.TitanQuad;
-import com.studica.frc.TitanQuadEncoder;
-
-import edu.wpi.first.networktables.NetworkTableEntry;
-import edu.wpi.first.wpilibj.SPI;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.wpilibj.PWMVictorSPX;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
 
 public class DriveBase extends SubsystemBase {
-    
-    private final TitanQuad leftMotor;
-    private final TitanQuad rightMotor;
-    private final TitanQuad backMotor;
+  // Ajuste as portas PWM conforme ligou no VMX ou RoboRIO
+  private final PWMVictorSPX motorA = new PWMVictorSPX(0); // roda em 0°
+  private final PWMVictorSPX motorB = new PWMVictorSPX(1); // roda em 120°
+  private final PWMVictorSPX motorC = new PWMVictorSPX(2); // roda em 240°
 
-    private final TitanQuadEncoder leftEncoder;
-    private final TitanQuadEncoder rightEncoder;
-    private final TitanQuadEncoder backEncoder;
+  public DriveBase() {
+    motorA.setInverted(false);
+    motorB.setInverted(false);
+    motorC.setInverted(false);
+  }
 
-    private final AHRS navx;
+  /** Kiwi Drive (3 rodas omni a 120°) */
+  public void kiwiDrive(double x, double y, double rot) {
+    double mA = x + rot;
+    double mB = -0.5 * x + (Math.sqrt(3) / 2.0) * y + rot;
+    double mC = -0.5 * x - (Math.sqrt(3) / 2.0) * y + rot;
 
-    private final ShuffleboardTab tab = Shuffleboard.getTab("Training Robot");
-    private final NetworkTableEntry leftEncoderValue = tab.add("left enconder", 0).getEntry();
-    private final NetworkTableEntry rightEncoderValue = tab.add("right enconder", 0).getEntry();
-    private final NetworkTableEntry backEncoderValue = tab.add("back enconder", 0).getEntry();
-    private final NetworkTableEntry gyroValue = tab.add("NavX Yaw", 0).getEntry();
+    // normaliza
+    double max = Math.max(1.0, Math.max(Math.abs(mA), Math.max(Math.abs(mB), Math.abs(mC))));
+    mA /= max;
+    mB /= max;
+    mC /= max;
 
-    public DriveBase() {
+    motorA.set(mA);
+    motorB.set(mB);
+    motorC.set(mC);
+  }
 
-        leftMotor = new TitanQuad(Constants.TITAN_ID, Constants.M0);
-        rightMotor = new TitanQuad(Constants.TITAN_ID, Constants.M1);
-        backMotor = new TitanQuad(Constants.TITAN_ID, Constants.M2);
+  public void stop() {
+    motorA.set(0.0);
+    motorB.set(0.0);
+    motorC.set(0.0);
+  }
 
-        leftEncoder = new TitanQuadEncoder(leftMotor, Constants.M0, Constants.WHEEL_DIST_PER_TICK);
-        rightEncoder = new TitanQuadEncoder(rightMotor, Constants.M1, Constants.WHEEL_DIST_PER_TICK);
-        backEncoder = new TitanQuadEncoder(backMotor, Constants.M2, Constants.WHEEL_DIST_PER_TICK);
+  @Override
+  public void periodic() {
+    // opcional
+  }
 
-        leftEncoder.setReverseDirection();
-        
-
-        navx = new AHRS(SPI.Port.kMXP);
-
-    }
-
-    public void setLeftmotorspeed(final double speed) {
-        leftMotor.set(speed);
-    }
-
-    public void setRightmotorspeed(final double speed) {
-        rightMotor.set(speed);
-    }
-
-    public void setBackmotorspeed(final double speed) {
-        backMotor.set(speed);
-    }
-
-    public void setDriveMotorSpeeds(final double leftSpeed, final double rightSpeed, final double backSpeed) {
-        leftMotor.set(leftSpeed);
-        rightMotor.set(rightSpeed);
-        backMotor.set(backSpeed);
-    }
-
-    public void holonomicDrive(final double x, final double y, final double z) {
-        double rightSpeed = ((x/3) - (y/Math.sqrt(3)) + z) * Math.sqrt(3);
-        double leftSpeed = ((x/3) + (y / Math.sqrt(3)) + z) * Math.sqrt(3);
-        double backSpeed = (-2 * x /3) + z;
-
-        double max = Math.abs(rightSpeed);
-        if (Math.abs(leftSpeed) > max) max = Math.abs(leftSpeed);
-        if (Math.abs(backSpeed) > max) max = Math.abs(backSpeed);
-
-        if (max > 1)
-        rightSpeed /= max;
-        leftSpeed /= max;
-        backSpeed/= max;
-    
-    leftMotor.set(leftSpeed);
-    rightMotor.set(rightSpeed);
-    backMotor.set(backSpeed);
-}
-
-    public double getleftEncoderDistance()
-    {
-        return leftEncoder.getEncoderDistance();
-    }
-
-    public double getRightEncoderDistance()
-    {
-        return rightEncoder.getEncoderDistance();
-    }
-
-    public double getBackEncoderDistance()
-    {
-        return backEncoder.getEncoderDistance();
-    }
-
-    public double getAverageForwardEncoderDistance(){
-        return (getleftEncoderDistance()+getRightEncoderDistance())/2;
-        
-    }
-
-    public double getYaw()
-    {
-        return navx.getYaw();
-    }
-
-    public void resetEncoders()
-    {
-        leftEncoder.reset();
-        rightEncoder.reset();
-        backEncoder.reset();
-    }
-
-    public void resetYaw()
-        {
-            navx.zeroYaw();
-        }
-    
-        @Override
-        public void periodic()
-        {
-            leftEncoderValue.setDouble(getleftEncoderDistance());
-            rightEncoderValue.setDouble(getRightEncoderDistance());
-            backEncoderValue.setDouble(getBackEncoderDistance());
-            gyroValue.setDouble(getYaw());
-
-        }
-	public void setMotorSpeed(int i) {
-	}
-
-	public void setMotorSpeed(double inputRightY) {
-	}
-
-
-    
-
-
+  // Substitui o antigo holonomicDrive
+public void holonomicDrive(double x, double y, double z) {
+    kiwiDrive(x, y, z);
+  }
+  
+  // Substitui o antigo setDriveMotorSpeeds
+  public void setDriveMotorSpeeds(double a, double b, double c) {
+    motorA.set(a);
+    motorB.set(b);
+    motorC.set(c);
+  }
+  
+  // Substitui o antigo resetEncoders (sem encoder real ainda)
+  public void resetEncoders() {
+    // TODO: implementar se adicionar encoders
+  }
+  
+  // Substitui o antigo resetYaw (sem giroscópio ainda)
+  public void resetYaw() {
+    // TODO: implementar se adicionar IMU
+  }
+  
+  // Substitui o antigo getAverageForwardEncoderDistance
+  public double getAverageForwardEncoderDistance() {
+    return 0.0; // placeholder
+  }
+  
+  // Substitui o antigo getYaw
+  public double getYaw() {
+    return 0.0; // placeholder
+  }  
 
 }

@@ -14,6 +14,9 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.commands.auto.AutoCommand;
 import frc.robot.commands.auto.DriveFoward;
 import frc.robot.commands.auto.DriveFowardWithPid;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj.Timer;
+
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -24,6 +27,10 @@ import frc.robot.commands.auto.DriveFowardWithPid;
 public class Robot extends TimedRobot {
 
   private RobotContainer m_robotContainer;
+  private Command autonomousCommand;
+  private final Timer autoTimer = new Timer();
+  private boolean autoActive = false;
+
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -44,6 +51,7 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotPeriodic() {
+    // Garante que, se você usar Commands em qualquer lugar, eles rodem.
     CommandScheduler.getInstance().run();
   }
 
@@ -76,7 +84,14 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void autonomousInit() {
-
+    // (Opcional) Se você agendava um comando de auto, pode comentar por enquanto:
+    // Command auto = m_robotContainer.getAutonomousCommand();
+    // if (auto != null) auto.schedule();
+  
+    // Fallback por tempo: liga o timer e ativa a flag
+    autoTimer.reset();
+    autoTimer.start();
+    autoActive = true;
   }
 
   /**
@@ -84,11 +99,29 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void autonomousPeriodic() {
+    if (!autoActive) return;
+  
+    double t = autoTimer.get();
+    if (t < 2.0) {
+      // Anda pra frente enquanto estiver nos 2s iniciais.
+      // holonomicDrive(x=strafe, y=frente, z=giro).
+      // Se seu drive estiver invertido, troque 0.5 por -0.5.
+      frc.robot.RobotContainer.drivebase.kiwiDrive(0.0, -0.5, 0.0);
+      // Alternativa caso não mexa: experimente -0.5
+      // frc.robot.RobotContainer.drivebase.holonomicDrive(0.0, -0.5, 0.0);
+    } else {
+      // Para motores e encerra o auto
+      frc.robot.RobotContainer.drivebase.setDriveMotorSpeeds(0.0, 0.0, 0.0);
+      autoActive = false;
+    }
   }
 
   @Override
   public void teleopInit() {
-
+    // Garante que nada do auto continue rodando
+    autoActive = false;
+    frc.robot.RobotContainer.drivebase.setDriveMotorSpeeds(0.0, 0.0, 0.0);
+    CommandScheduler.getInstance().cancelAll();
   }
 
   /**

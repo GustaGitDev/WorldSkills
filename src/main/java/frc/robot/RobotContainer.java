@@ -19,6 +19,9 @@ import frc.robot.commands.Teleop;
 import frc.robot.commands.TeleopOMS;
 import frc.robot.commands.auto.AutoCommand;
 import frc.robot.commands.auto.DriveFoward;
+import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.commands.auto.DriveFoward;
+
 
 public class RobotContainer {
 
@@ -48,7 +51,8 @@ public class RobotContainer {
     //@return
 
     public Command getAutonomousCommand() {
-      String mode =autoChooser.getSelected();
-      return autoMode.getOrDefault(mode, new DriveFoward());
+      // Auto simples: ir para frente por ~2s
+      return new DriveFoward();
     }
+    
   }
