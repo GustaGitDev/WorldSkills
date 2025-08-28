@@ -47,6 +47,7 @@ dependencies {
     nativeZip wpi.deps.wpilibJni(wpi.platforms.raspbian)
     nativeDesktopZip wpi.deps.wpilibJni(wpi.platforms.desktop)
 
+    implementation 'org.opencv:opencv-java:4.5.1'
 
     implementation wpi.deps.vendor.java()
     nativeZip wpi.deps.vendor.jni(wpi.platforms.raspbian)
