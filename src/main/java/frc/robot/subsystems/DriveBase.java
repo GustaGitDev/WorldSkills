@@ -29,12 +29,12 @@ public class DriveBase extends SubsystemBase {
     private final NetworkTableEntry gyroValue = tab.add("NavX Yaw", 0).getEntry();
 
     public DriveBase() {
-        leftMotor = new TitanQuad(Constants.TITAN_ID, Constants.M0);
-        rightMotor = new TitanQuad(Constants.TITAN_ID, Constants.M1);
+        leftMotor = new TitanQuad(Constants.TITAN_ID, Constants.M1);
+        rightMotor = new TitanQuad(Constants.TITAN_ID, Constants.M0);
         backMotor = new TitanQuad(Constants.TITAN_ID, Constants.M2);
 
-        leftEncoder = new TitanQuadEncoder(leftMotor, Constants.M0, Constants.WHEEL_DIST_PER_TICK);
-        rightEncoder = new TitanQuadEncoder(rightMotor, Constants.M1, Constants.WHEEL_DIST_PER_TICK);
+        leftEncoder = new TitanQuadEncoder(leftMotor, Constants.M1, Constants.WHEEL_DIST_PER_TICK);
+        rightEncoder = new TitanQuadEncoder(rightMotor, Constants.M0, Constants.WHEEL_DIST_PER_TICK);
         backEncoder = new TitanQuadEncoder(backMotor, Constants.M2, Constants.WHEEL_DIST_PER_TICK);
 
         leftEncoder.setReverseDirection();
@@ -64,30 +64,36 @@ public class DriveBase extends SubsystemBase {
         double rightSpeed = ((x / 3) - (y / Math.sqrt(3)) + z) * Math.sqrt(3);
         double leftSpeed = ((x / 3) + (y / Math.sqrt(3)) + z) * Math.sqrt(3);
         double backSpeed = (-2 * x / 3) + z;
-
+    
         // Encontrar o maior valor de velocidade
         double max = Math.abs(rightSpeed);
         if (Math.abs(leftSpeed) > max) max = Math.abs(leftSpeed);
         if (Math.abs(backSpeed) > max) max = Math.abs(backSpeed);
-
+    
         // Normaliza as velocidades
         if (max > 1) {
             rightSpeed /= max;
             leftSpeed /= max;
             backSpeed /= max;
         }
+    
+        // Ajuste dinâmico para alinhamento dos motores
+        // AJUSTES BASEADO NA TELEMETRIA, 
+        double leftRightSpeedDifference = Math.abs(leftSpeed - rightSpeed);
+        //double backSpeedDifference = Math.abs(leftSpeed - backSpeed); // 
+    
+        double adjustmentFactor = 1.0 + (leftRightSpeedDifference * 1.0);
+        backSpeed *= adjustmentFactor;  
+    
+        double leftMotorAdjustmentFactor = 1.0 + (leftRightSpeedDifference * 0.5);
+        if (Math.abs(leftSpeed) < 0.1) leftSpeed *= leftMotorAdjustmentFactor;
 
-        // Ajuste dinâmico da velocidade do motor traseiro
-        double speedDifference = Math.abs(leftSpeed - rightSpeed);
-        double adjustmentFactor = 1.0 + (speedDifference * 1.0);  // Ajuste dinâmico baseado na diferença de velocidade
-        backSpeed *= adjustmentFactor;  // Aumenta ou diminui a velocidade do motor traseiro proporcionalmente
-
-        // Aplica as velocidades corrigidas aos motores
+        double rightMotorAdjustmentFactor = 1.0 + (leftRightSpeedDifference * 0.5);
+        if (Math.abs(rightSpeed) < 0.1) rightSpeed *= rightMotorAdjustmentFactor;
+    
         leftMotor.set(leftSpeed);
         rightMotor.set(rightSpeed);
-        backMotor.set(backSpeed * 1.7);
-        ///1,8 é o valor de ajuste pra roda traseira mais aceitavel que consegui pelos testes, 27/08
-        ///commit esquecido, resolvido agora.
+        backMotor.set(backSpeed * 1.65); 
     }
 
     public double getLeftEncoderDistance() {
