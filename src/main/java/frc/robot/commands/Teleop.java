@@ -1,32 +1,34 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.RobotContainer;
 import frc.robot.gamepad.OI;
 import frc.robot.subsystems.DriveBase;
+import frc.robot.RobotContainer;
 
 public class Teleop extends CommandBase {
 
-    private static final DriveBase drivebase = RobotContainer.drivebase;
-    private static final OI oi = RobotContainer.oi;
+    private final DriveBase drivebase;
+    private final OI oi;
 
-    double inputLeftY = 0;
-    double inputLeftX = 0;
-    double inputRightY = 0;
-    double inputRightX = 0;
+    private double inputLeftY = 0;
+    private double inputLeftX = 0;
+    private double inputRightY = 0;
+    private double inputRightX = 0;
 
-    // Rampagem
-    double prevLeftY = 0;
-    double prevLeftX = 0;
-    double prevRightY = 0;
-    double prevRightX = 0;
+    private double prevLeftY = 0;
+    private double prevLeftX = 0;
+    private double prevRightY = 0;
+    private double prevRightX = 0;
 
     private static final double RAMP_UP = 0.05;
     private static final double RAMP_DOWN = 0.05;
     private static final double DELTA_LIMIT = 0.075;
     private static final double DEADZONE = 0.1;
 
-    public Teleop() {
+    // Construtor recebendo RobotContainer
+    public Teleop(RobotContainer container) {
+        this.drivebase = container.drivebase;
+        this.oi = container.oi;
         addRequirements(drivebase);
     }
 
@@ -37,34 +39,35 @@ public class Teleop extends CommandBase {
 
     @Override
     public void execute() {
-        // Leitura do controle
+        // Leitura dos joysticks
         inputLeftX = applyDeadzone(oi.getLeftDriveX());
         inputLeftY = applyDeadzone(oi.getLeftDriveY());
         inputRightX = applyDeadzone(oi.getRightDriveX());
         inputRightY = applyDeadzone(oi.getRightDriveY());
 
-        // Rampagem simples
+        // Rampagem
         inputLeftX = ramp(inputLeftX, prevLeftX);
         inputLeftY = ramp(inputLeftY, prevLeftY);
         inputRightX = ramp(inputRightX, prevRightX);
         inputRightY = ramp(inputRightY, prevRightY);
 
-        //// Atualiza os valores anteriores
         prevLeftX = inputLeftX;
         prevLeftY = inputLeftY;
         prevRightX = inputRightX;
         prevRightY = inputRightY;
 
-        // Comando de direção
+        // Movimento do robô
         drivebase.holonomicDrive(inputRightY, inputLeftX, inputRightX);
+
+        // Para o robô caso os joysticks estejam neutros
         if (inputLeftX == 0 && inputLeftY == 0 && inputRightX == 0 && inputRightY == 0) {
-            drivebase.setDriveMotorSpeeds(0.0, 0.0, 0.0);
+            drivebase.setDriveMotorSpeeds(0, 0, 0);
         }
     }
 
     @Override
     public void end(boolean interrupted) {
-        drivebase.setDriveMotorSpeeds(0.0, 0.0, 0.0);
+        drivebase.setDriveMotorSpeeds(0, 0, 0);
     }
 
     @Override
@@ -72,20 +75,16 @@ public class Teleop extends CommandBase {
         return false;
     }
 
-    // Aplica zona morta
+    // --- Zona morta ---
     private double applyDeadzone(double value) {
-        return Math.abs(value) < DEADZONE ? 0.0 : value;
+        return Math.abs(value) < DEADZONE ? 0 : value;
     }
 
-    // Função de rampagem
+    // --- Rampagem ---
     private double ramp(double current, double previous) {
         double delta = current - previous;
-    
-        // Se o valor de destino é zero, zera mais rápido
-        if (Math.abs(current) < DEADZONE) return 0.0;
-    
+        if (Math.abs(current) < DEADZONE) return 0;
         if (Math.abs(delta) < DELTA_LIMIT) return current;
-        if (delta > 0) return previous + RAMP_UP;
-        else return previous - RAMP_DOWN;
+        return delta > 0 ? previous + RAMP_UP : previous - RAMP_DOWN;
     }
 }
