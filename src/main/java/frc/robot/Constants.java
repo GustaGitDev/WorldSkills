@@ -30,4 +30,23 @@ public final class Constants
     public static final double elevatorGearRatio = 1.0/2.0;
     public static final double pulleyPulseRatio = pulsePerRevElevator * elevatorGearRatio;
     public static final double ELEVATOR_DIST_TICK = (Math.PI * 2 * pulleyRadius)/pulleyPulseRatio;
+
+    public static final class PID {
+        // Distância (Y)
+        public static final double kP_Y = 0.6;
+        public static final double kI_Y = 0.0;
+        public static final double kD_Y = 0.3;
+
+        // Yaw (Z)
+        public static final double kP_Z = 0.04;
+        public static final double kI_Z = 0.015;
+        public static final double kD_Z = 0.0;
+
+        // Tolerâncias
+        public static final double TOL_DIST = 0.05; // m
+        public static final double TOL_YAW  = 0.5;  // graus
+
+        // Multiplicador
+        public static final double YAW_SPEED_MULT = 0.6;
+    }
 }

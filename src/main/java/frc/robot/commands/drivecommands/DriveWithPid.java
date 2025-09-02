@@ -1,75 +1,90 @@
 package frc.robot.commands.drivecommands;
 
-import edu.wpi.first.wpilibj.controller.PIDController;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import edu.wpi.first.wpiutil.math.MathUtil;
 import frc.robot.RobotContainer;
 import frc.robot.subsystems.DriveBase;
 
+/**
+ * Reta com heading lock:
+ *  - PID de distância (DriveBase) para avançar até "distanceMeters"
+ *  - PID de yaw (DriveBase) para manter o heading alvo
+ * Usa rampas (slew) e desliga heurísticas do mixer no modo auton.
+ */
 public class DriveWithPid extends CommandBase {
     private static final DriveBase drive = RobotContainer.drivebase;
 
-    private double setpointDistance;  // Distância desejada
-    private double setpointYaw;  // Ângulo desejado (Yaw)
-    private double speedMultiplier;  // Fator de multiplicação para a velocidade de rotação
+    private final Double distanceMetersTarget;
+     // delta desejado (m). 0 = só segurar heading
+    private final Double fixedYawDeg;          // se null, usa yaw atual como alvo
+    private final Double customYawSpeedMult;   // multiplicador opcional p/ correção de yaw
 
-    PIDController pidYaxis;  // PID para controle da distância
-    PIDController pidZaxis;  // PID para controle da rotação (Yaw)
+    private double startDistance;
 
-    public DriveWithPid(double setpointDistance, double epsilonDistance, double setpointYaw, double epsilonYaw, double speedMultiplier) {
-        this.setpointDistance = setpointDistance;
-        this.setpointYaw = setpointYaw;
-        this.speedMultiplier = speedMultiplier;
+    /** Segue "distanceMeters" e trava o heading no YAW ATUAL. */
+    public DriveWithPid(double distanceMeters) {
+        this(distanceMeters, null, null);
+    }
+
+    /**
+     * @param distanceMeters     distância a avançar (m). Se 0, não avança; apenas segura heading.
+     * @param holdYawDeg         heading absoluto alvo (graus). Se null, usa yaw atual no initialize().
+     * @param yawSpeedMultiplier multiplicador opcional p/ rapidez da correção de yaw (null usa o do dashboard)
+     */
+    public DriveWithPid(double distanceMeters, Double holdYawDeg, Double yawSpeedMultiplier) {
+        this.distanceMetersTarget = distanceMeters * 4.6;
+        this.fixedYawDeg = holdYawDeg;
+        this.customYawSpeedMult = yawSpeedMultiplier;
         addRequirements(drive);
-
-        // PID para movimento linear (não usado no caso de rotação)
-        pidYaxis = new PIDController(1, 0, 0);  
-        pidYaxis.setTolerance(epsilonDistance);
-
-        // PID para rotação (Yaw)
-        pidZaxis = new PIDController(0.1, 0, 0);  
-        pidZaxis.setTolerance(epsilonYaw);
     }
 
     @Override
     public void initialize() {
-        drive.resetEncoders();  // Reseta os encoders no início do movimento
-        drive.resetYaw();  // Reseta o yaw para garantir que começamos de 0 graus
-        pidYaxis.reset();
-        pidZaxis.reset();
+        drive.resetPids();
+        drive.setAutoClosedLoop(true);   // mixer “puro” no auton
+
+        // ponto de partida (reta em Y)
+        startDistance = drive.getForwardDistance();
+
+        // yaw alvo
+        double targetYaw = (fixedYawDeg != null) ? fixedYawDeg : drive.getYaw();
+        drive.setYawTargetDeg(targetYaw);
+
+        // setpoint SEM inversão (sempre start + distância desejada)
+        if (distanceMetersTarget != 0.0) {
+            drive.setDistanceTargetMeters(startDistance + distanceMetersTarget);
+        } else {
+            drive.setDistanceTargetMeters(0.0);
+        }
+
+        if (customYawSpeedMult != null) {
+            drive.setYawSpeedMultiplier(customYawSpeedMult);
+        }
     }
 
     @Override
     public void execute() {
-        // Se estamos apenas controlando a rotação, desative o PID de distância
-        double pidOutputY = 0.0;
+       
+        double y = drive.computeDistancePidOutput(); // reta (Y)
+        double z = drive.computeYawPidOutput();      // heading
 
-        // Calcula o PID para rotação (Yaw) e ajusta a velocidade com o multiplicador
-        double pidOutputZ = MathUtil.clamp(pidZaxis.calculate(drive.getYaw(), setpointYaw) * speedMultiplier, -1.0, 1.0);
+        // rampas
+        y = drive.applySlewY(y);
+        z = drive.applySlewZ(z);
 
-        // Se o setpointDistance for diferente de 0, use o PID para distância
-        if (setpointDistance != 0.0) {
-            pidOutputY = MathUtil.clamp(pidYaxis.calculate(drive.getAverageForwardEncoderDistance(), setpointDistance), -0.5, 0.5);
-        }
+        // aplique o referencial do HARDWARE no comando (sempre aqui)
+        if (drive.shouldInvertY()) y = -y;
 
-        // Controla o movimento linear e a rotação simultaneamente
-        drive.holonomicDrive(0.0, pidOutputY, pidOutputZ);  // Controle linear (Y) e rotação (Z)
-
-        // Se a rotação ou o movimento linear atingir o setpoint, pare o robô
-        if (Math.abs(drive.getYaw() - setpointYaw) <= 1.0 && Math.abs(drive.getAverageForwardEncoderDistance() - setpointDistance) <= 0.1) {
-            drive.setDriveMotorSpeeds(0.0, 0.0, 0.0);  // Para o robô quando atingir tanto a rotação quanto a distância
-        }
+        drive.holonomicDrive(0.0, y, z);
     }
 
     @Override
     public void end(boolean interrupted) {
-        drive.setDriveMotorSpeeds(0.0, 0.0, 0.0);  // Se interromper, pare o robô
+        drive.setAutoClosedLoop(false);  // volta heurísticas para teleop
+        drive.setDriveMotorSpeeds(0.0, 0.0, 0.0);
     }
 
     @Override
     public boolean isFinished() {
-        // O comando termina quando o yaw atingir o setpoint com a tolerância definida
-        // A verificação se o yaw está dentro da tolerância é suficiente para encerrar o comando
-        return pidZaxis.atSetpoint();  // Foca apenas na rotação e não na distância
+        return drive.atYawSetpoint() && drive.atDistanceSetpoint();
     }
 }

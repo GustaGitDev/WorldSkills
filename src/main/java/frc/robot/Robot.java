@@ -8,14 +8,8 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.commands.auto.AutoCommand;
-import frc.robot.commands.auto.DriveFoward;
-import frc.robot.commands.auto.DriveFowardWithPid;
-import frc.robot.commands.auto.Rotate180WithPid;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -27,82 +21,47 @@ public class Robot extends TimedRobot {
 
   private RobotContainer m_robotContainer;
 
-  /**
-   * This function is run when the robot is first started up and should be used for any
-   * initialization code.
-   */
+  /** This function is run when the robot is first started up and should be used for any init code. */
   @Override
   public void robotInit() {
-    // Instantiate our RobotContainer. 
+    // Instantiate our RobotContainer.
     m_robotContainer = new RobotContainer();
   }
 
-  /**
-   * This function is called every robot packet, no matter the mode. Use this for items like
-   * diagnostics that you want ran during disabled, autonomous, teleoperated and test.
-   *
-   * <p>This runs after the mode specific periodic functions, but before
-   * LiveWindow and SmartDashboard integrated updating.
-   */
+  /** This function is called every robot packet, no matter the mode. */
   @Override
   public void robotPeriodic() {
     CommandScheduler.getInstance().run();
   }
 
-  /**
-   * This function is called once each time the robot enters Disabled mode.
-   */
+  /** This function is called once each time the robot enters Disabled mode. */
   @Override
   public void disabledInit() {
-    if (null == RobotContainer.autoChooser)
-    {
-        RobotContainer.autoChooser = new SendableChooser<>();
-    }
-    RobotContainer.autoChooser.setDefaultOption("Drive Foward", "Drive Forward");
-    RobotContainer.autoMode.put("Drive Foward", new DriveFoward());
-    AddAutoMode(RobotContainer.autoChooser, "Drive Foward withPID", new DriveFowardWithPid());
-    AddAutoMode(RobotContainer.autoChooser, "Rotate180WithPid", new Rotate180WithPid());
-    SmartDashboard.putData(RobotContainer.autoChooser);
-  }
-
-  public void AddAutoMode(SendableChooser<String>chooser, String auto, AutoCommand cmd){
-    chooser.addOption(auto, auto);
-    RobotContainer.autoMode.put(auto, cmd);
+    // NÃO registrar/alterar o chooser aqui. Tudo é feito no RobotContainer.
   }
 
   @Override
-  public void disabledPeriodic() {
-  }
+  public void disabledPeriodic() { }
 
-  /**
-   * This autonomous runs the autonomous command selected by your {@link RobotContainer} class.
-   */
+  /** This autonomous runs the autonomous command selected by your RobotContainer class. */
   @Override
   public void autonomousInit() {
     Command autonomousCommand = m_robotContainer.getAutonomousCommand();
     if (autonomousCommand != null) {
-    autonomousCommand.schedule(); // correção 27/08 acionamento auto
-}
+      autonomousCommand.schedule(); // correção 27/08 acionamento auto
+    }
   }
 
-  /**
-   * This function is called periodically during autonomous.
-   */
+  /** This function is called periodically during autonomous. */
   @Override
-  public void autonomousPeriodic() {
-  }
+  public void autonomousPeriodic() { }
 
   @Override
-  public void teleopInit() {
+  public void teleopInit() { }
 
-  }
-
-  /**
-   * This function is called periodically during operator control.
-   */
+  /** This function is called periodically during operator control. */
   @Override
-  public void teleopPeriodic() {
-  }
+  public void teleopPeriodic() { }
 
   @Override
   public void testInit() {
@@ -110,24 +69,15 @@ public class Robot extends TimedRobot {
     CommandScheduler.getInstance().cancelAll();
   }
 
-  /**
-   * This function is called periodically during test mode.
-   */
+  /** This function is called periodically during test mode. */
   @Override
-  public void testPeriodic() {
-  }
+  public void testPeriodic() { }
 
-  /**
-   * added here to satisfy the watchdog
-   */
+  /** added here to satisfy the watchdog */
   @Override
-  public void simulationInit(){
-  }
-  
-  /**
-   * added here to satisfy the watchdog
-   */ 
+  public void simulationInit() { }
+
+  /** added here to satisfy the watchdog */
   @Override
-  public void simulationPeriodic(){
-  }
+  public void simulationPeriodic() { }
 }

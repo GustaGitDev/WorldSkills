@@ -13,15 +13,15 @@ public class SimpleDrive extends CommandBase{
 
     public SimpleDrive(Double x, Double y, Double z)
     {
-        this.x = x;
-        this.y = y;
+        this.x = y * -1;
+        this.y = x;
         this.z = z;
         addRequirements(drive);
     }
     @Override
     public void execute()
     {
-        drive.holonomicDrive(x, y, z);
+        drive.holonomicDrive(x, -y, z);
     }
     @Override
     public void end(boolean interrupted)
