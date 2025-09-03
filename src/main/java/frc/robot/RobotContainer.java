@@ -2,6 +2,7 @@ package frc.robot;
 
 import frc.robot.gamepad.OI;
 import frc.robot.subsystems.DepthCamera;
+import frc.robot.subsystems.DepthWallRange;
 import frc.robot.subsystems.DriveBase;
 import frc.robot.subsystems.OMS;
 
@@ -19,6 +20,7 @@ import frc.robot.commands.auto.AutoCommand;
 import frc.robot.commands.auto.DriveFoward;               // open-loop existente
 import frc.robot.commands.auto.DriveFowardWithPid;       // legado (opcional no menu)
 import frc.robot.commands.auto.DriveStraightWithPid;     // wrapper novo (reta PID)
+import frc.robot.commands.auto.LabirintoA;
 import frc.robot.commands.auto.RotateToAngleWithPid;     // wrapper novo (giro PID)
 import frc.robot.commands.auto.Rotate180WithPid;         // preset 180° (se quiser manter)
 import frc.robot.commands.auto.AutonomoTESTE;            // triângulo
@@ -28,6 +30,7 @@ public class RobotContainer {
     /** Subsystems */
     private final DepthCamera camera;
     public static DriveBase drivebase;
+    public static DepthWallRange wallRange;
     public static OI oi;
     public static OMS oms;
 
@@ -41,6 +44,10 @@ public class RobotContainer {
         drivebase = new DriveBase();
         oi       = new OI();
         oms      = new OMS();
+        wallRange = new DepthWallRange(camera);
+         // (opcional) ajuste inicial dos parâmetros do filtro:
+         wallRange.setParams(10, 2, 0.2); // ROI 21x21, passo 2, EMA alpha=0.2
+        // ...
 
         // --- Default commands ---
         drivebase.setDefaultCommand(new Teleop(this));
@@ -68,6 +75,9 @@ public class RobotContainer {
         // Teste de triângulo
         autoChooser.addOption("Triangle Test", "Triangle Test");
         autoMode.put("Triangle Test", new AutonomoTESTE());
+
+        autoChooser.addOption("Modulo A", "Modulo A");
+        autoMode.put("Modulo A", new LabirintoA());
 
 
 

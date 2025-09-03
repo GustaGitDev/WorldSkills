@@ -18,18 +18,17 @@ public class DepthCamera extends SubsystemBase {
     private final Object pipeLock = new Object();
     private Pipeline pipeline;
 
-    private volatile double distanceToWall = -1.0; // Z direto
+    private volatile double distanceToWall = -1.0; // leitura central bruta (m)
     private volatile boolean initialized = false;
 
-    // X e Y em standby
-    private volatile double pX = 0;
-    private volatile double pY = 0;
+    // Snapshot do último depth frame (16-bit little-endian)
+    private volatile byte[] lastDepthBytes = null;
+    private volatile int depthWidth = 0;
+    private volatile int depthHeight = 0;
 
     public DepthCamera() {
-        // Inicializa CameraServer
         outputStream = CameraServer.getInstance().putVideo("Orbbec Color", 640, 480);
         frameMat = new Mat(480, 640, CvType.CV_8UC3);
-
         initCamera();
     }
 
@@ -117,12 +116,11 @@ public class DepthCamera extends SubsystemBase {
             if (colorFrame != null) sendFrameToCameraServer(colorFrame);
         } catch (Exception e) { e.printStackTrace(); }
 
-        // DepthFrame → só Z
+        // Depth (guarda snapshot + leitura central bruta)
         try (DepthFrame depthFrame = frameSet.getFrame(FrameType.DEPTH)) {
             if (depthFrame != null) processDepthFrame(depthFrame);
         } catch (Exception e) { e.printStackTrace(); }
 
-        // Atualiza SmartDashboard
         updateSmartDashboard();
     }
 
@@ -143,38 +141,52 @@ public class DepthCamera extends SubsystemBase {
         } catch (Exception e) { e.printStackTrace(); }
     }
 
+    // >>> CORRIGIDO: depth 16-bit little-endian; width/height corretos
     private void processDepthFrame(DepthFrame frame) {
-        int height = frame.getWidth();
-        int width = frame.getHeight();
-        int x = width / 2;
-        int y = height / 2;
+        int width  = frame.getWidth();
+        int height = frame.getHeight();
 
-        byte[] frameData = new byte[frame.getDataSize()];
-        frame.getData(frameData);
+        byte[] data = new byte[frame.getDataSize()];
+        frame.getData(data);
 
-        int depthD1 = frameData[y * width + x];
-        int depthD2 = frameData[y * width + x + 1];
-        double z = ((depthD2 << 8) & 0xFF00) + (depthD1 & 0xFF);
+        // snapshot para processadores externos (ROI, mediana, etc)
+        this.lastDepthBytes = data;
+        this.depthWidth = width;
+        this.depthHeight = height;
 
-        // Só mantém Z
-        this.distanceToWall = z / 1000.0; // metros
+        // leitura central bruta (debug)
+        int cx = width / 2, cy = height / 2;
+        int idx = (cy * width + cx) * 2; // 2 bytes por pixel
+        if (idx + 1 < data.length) {
+            int d1 = data[idx] & 0xFF;
+            int d2 = data[idx + 1] & 0xFF;
+            int depth = (d2 << 8) | d1;
+            this.distanceToWall = depth > 0 ? depth / 1000.0 : -1.0;
+        }
 
         if (!initialized) initialized = true;
     }
 
     private void updateSmartDashboard() {
         SmartDashboard.putBoolean("Camera Initialized", initialized);
-        
-        // Exibe a distância em metros
         SmartDashboard.putNumber("Distance to Wall (m)", distanceToWall);
-        
-        // Exibe a distância em centímetros
-        SmartDashboard.putNumber("Distance to Wall (cm)", distanceToWall * 100.0);
+        SmartDashboard.putNumber("Distance to Wall (cm)", distanceToWall > 0 ? distanceToWall * 100.0 : -1.0);
     }
 
     // --- Getters ---
     public boolean isInitialized() { return initialized; }
     public double getDistanceToWall() { return distanceToWall; }
+
+    // Snapshots para processadores (cópia defensiva)
+    public byte[] getDepthBytesSnapshot() {
+        byte[] src = this.lastDepthBytes;
+        if (src == null) return null;
+        byte[] copy = new byte[src.length];
+        System.arraycopy(src, 0, copy, 0, src.length);
+        return copy;
+    }
+    public int getDepthWidth()  { return depthWidth; }
+    public int getDepthHeight() { return depthHeight; }
 
     public void destroyCamera() {
         synchronized(pipeLock) {
