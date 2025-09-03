@@ -16,72 +16,66 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.commands.Teleop;
 import frc.robot.commands.TeleopOMS;
 
-import frc.robot.commands.auto.AutoCommand;
-import frc.robot.commands.auto.DriveFoward;               // open-loop existente
-import frc.robot.commands.auto.DriveFowardWithPid;       // legado (opcional no menu)
-import frc.robot.commands.auto.DriveStraightWithPid;     // wrapper novo (reta PID)
+import frc.robot.commands.auto.DriveFoward; // open-loop existente
+import frc.robot.commands.auto.DriveFowardWithPid; // legado (opcional no menu)
+import frc.robot.commands.auto.DriveStraightWithPid; // wrapper novo (reta PID)
 import frc.robot.commands.auto.LabirintoA;
-import frc.robot.commands.auto.RotateToAngleWithPid;     // wrapper novo (giro PID)
-import frc.robot.commands.auto.Rotate180WithPid;         // preset 180° (se quiser manter)
-import frc.robot.commands.auto.AutonomoTESTE;            // triângulo
+import frc.robot.commands.auto.RotateToAngleWithPid; // wrapper novo (giro PID)
+import frc.robot.commands.auto.AutonomoTESTE; // triângulo
 
 public class RobotContainer {
 
-    /** Subsystems */
-    private final DepthCamera camera;
-    public static DriveBase drivebase;
-    public static DepthWallRange wallRange;
+    /** === Subsystems estáticos de uso global === */
+    public static final DriveBase driveBase = new DriveBase();
+    // Alias para compatibilidade com código que usa "drivebase"
+    public static final DriveBase drivebase = driveBase;
+
+    public static final DepthCamera camera = new DepthCamera();
+    public static final DepthWallRange wallRange = new DepthWallRange(camera);
+
+    /** Outros subsistemas/controles (se quiser manter estáticos) */
     public static OI oi;
     public static OMS oms;
 
     /** Autonomous selection (centralizado aqui) */
-    public static SendableChooser<String> autoChooser = new SendableChooser<>();
+    public static final SendableChooser<String> autoChooser = new SendableChooser<>();
     public static final Map<String, Command> autoMode = new HashMap<>();
 
     public RobotContainer() {
-        // --- Initialize subsystems ---
-        camera   = new DepthCamera();
-        drivebase = new DriveBase();
-        oi       = new OI();
-        oms      = new OMS();
-        wallRange = new DepthWallRange(camera);
-         // (opcional) ajuste inicial dos parâmetros do filtro:
-         wallRange.setParams(10, 2, 0.2); // ROI 21x21, passo 2, EMA alpha=0.2
-        // ...
+        // Parâmetros iniciais do filtro da parede (ajuste se quiser)
+        wallRange.setParams(10, 2, 0.2); // ROI 21x21, passo 2, EMA alpha=0.2
 
-        // --- Default commands ---
-        drivebase.setDefaultCommand(new Teleop(this));
+        // Inicializa OI/OMS
+        oi = new OI();
+        oms = new OMS();
+
+        // Default commands
+        driveBase.setDefaultCommand(new Teleop(this));
         oms.setDefaultCommand(new TeleopOMS());
 
         // ===== AUTONOMOUS MENU (value == label) =====
-        // Default (open-loop)
         autoChooser.setDefaultOption("Drive Forward (open-loop)", "Drive Forward (open-loop)");
         autoMode.put("Drive Forward (open-loop)", new DriveFoward());
 
-        // Presets PID de reta com heading 0°
         autoChooser.addOption("Drive Straight PID 1.0m @0°", "Drive Straight PID 1.0m @0°");
         autoMode.put("Drive Straight PID 1.0m @0°", new DriveStraightWithPid(1.0, 0.0, null, 6));
 
         autoChooser.addOption("Drive Straight PID 2.0m @0°", "Drive Straight PID 2.0m @0°");
-        autoMode.put("Drive Straight PID 2.0m @0°", new DriveStraightWithPid(400.0, 0.0, null, 20));
+        autoMode.put("Drive Straight PID 2.0m @0°", new DriveStraightWithPid(2.0, 0.0, null, 20));
 
-        // Rotacionar para ângulos comuns
         autoChooser.addOption("Rotate to 90°", "Rotate to 90°");
         autoMode.put("Rotate to 90°", new RotateToAngleWithPid(90.0, null, 5));
 
         autoChooser.addOption("Rotate to 180°", "Rotate to 180°");
-        autoMode.put("Rotate to 180°", new RotateToAngleWithPid(180.0, null, 7)); // ou new Rotate180WithPid()
+        autoMode.put("Rotate to 180°", new RotateToAngleWithPid(180.0, null, 7));
 
-        // Teste de triângulo
         autoChooser.addOption("Triangle Test", "Triangle Test");
         autoMode.put("Triangle Test", new AutonomoTESTE());
 
         autoChooser.addOption("Modulo A", "Modulo A");
         autoMode.put("Modulo A", new LabirintoA());
 
-
-
-        // (Opcional) manter seu wrapper legado visível
+        // (Opcional) manter wrapper legado visível
         autoChooser.addOption("DriveFowardWithPid (legacy)", "DriveFowardWithPid (legacy)");
         autoMode.put("DriveFowardWithPid (legacy)", new DriveFowardWithPid());
 
