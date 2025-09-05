@@ -191,7 +191,7 @@ public class DriveBase extends SubsystemBase {
     }
 
     public double getYaw() {
-        return navx.getYaw();
+        return navx.getRoll();
     }
 
     public void resetEncoders() {
