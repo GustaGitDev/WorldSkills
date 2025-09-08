@@ -10,6 +10,7 @@ package frc.robot;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.subsystems.Monitoramento;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -20,6 +21,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 public class Robot extends TimedRobot {
 
   private RobotContainer m_robotContainer;
+  private long lastFrameNs = System.nanoTime(); 
 
   /** This function is run when the robot is first started up and should be used for any init code. */
   @Override
@@ -33,6 +35,13 @@ public class Robot extends TimedRobot {
   public void robotPeriodic() {
     CommandScheduler.getInstance().run();
   }
+    private void onFrameProduced() {
+    long now = System.nanoTime();
+    double dt = (now - lastFrameNs) / 1e9;
+    lastFrameNs = now;
+    m_robotContainer.monitor.noteFrameProduced(dt);
+    }
+
 
   /** This function is called once each time the robot enters Disabled mode. */
   @Override

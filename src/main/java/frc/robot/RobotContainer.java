@@ -4,6 +4,7 @@ import frc.robot.gamepad.OI;
 import frc.robot.subsystems.DepthCamera;
 import frc.robot.subsystems.DepthWallRange;
 import frc.robot.subsystems.DriveBase;
+import frc.robot.subsystems.Monitoramento;
 import frc.robot.subsystems.OMS;
 
 import java.util.HashMap;
@@ -27,6 +28,7 @@ public class RobotContainer {
 
     /** === Subsystems estáticos de uso global === */
     public static final DriveBase driveBase = new DriveBase();
+    public final Monitoramento monitor = new Monitoramento();
     // Alias para compatibilidade com código que usa "drivebase"
     public static final DriveBase drivebase = driveBase;
 
