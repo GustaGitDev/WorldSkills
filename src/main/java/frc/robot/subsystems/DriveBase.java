@@ -94,13 +94,13 @@ public class DriveBase extends SubsystemBase {
     private double lastTelemTime = 0.0;
 
     public DriveBase() {
-        leftMotor = new TitanQuad(Constants.TITAN_ID, Constants.M1);
+        leftMotor = new TitanQuad(Constants.TITAN_ID, Constants.M2);
         rightMotor = new TitanQuad(Constants.TITAN_ID, Constants.M0);
-        backMotor = new TitanQuad(Constants.TITAN_ID, Constants.M2);
+        backMotor = new TitanQuad(Constants.TITAN_ID, Constants.M1);
 
-        leftEncoder = new TitanQuadEncoder(leftMotor, Constants.M1, Constants.WHEEL_DIST_PER_TICK);
+        leftEncoder = new TitanQuadEncoder(leftMotor, Constants.M2, Constants.WHEEL_DIST_PER_TICK);
         rightEncoder = new TitanQuadEncoder(rightMotor, Constants.M0, Constants.WHEEL_DIST_PER_TICK);
-        backEncoder = new TitanQuadEncoder(backMotor, Constants.M2, Constants.WHEEL_DIST_PER_TICK);
+        backEncoder = new TitanQuadEncoder(backMotor, Constants.M1, Constants.WHEEL_DIST_PER_TICK);
 
         // Ajuste reverses conforme hardware (cada chamada inverte):
         // leftEncoder.setReverseDirection();
@@ -137,8 +137,9 @@ public class DriveBase extends SubsystemBase {
     }
 
     public void holonomicDrive(final double x, final double y, final double z) {
-        double rightSpeed = ((x / 3) - (y / Math.sqrt(3)) + z) * Math.sqrt(3);
-        double leftSpeed = ((x / 3) + (y / Math.sqrt(3)) + z) * Math.sqrt(3);
+        final double yCmd = shouldInvertY() ? -y : y; 
+        double rightSpeed = ((x / 3) - (yCmd / Math.sqrt(3)) + z) * Math.sqrt(3);
+        double leftSpeed = ((x / 3) + (yCmd / Math.sqrt(3)) + z) * Math.sqrt(3);
         double backSpeed = (-2 * x / 3) + z;
 
         double max = Math.abs(rightSpeed);

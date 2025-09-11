@@ -5,7 +5,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import java.io.*;
 import java.nio.file.*;
-import java.util.Locale;
 
 public class Monitoramento extends SubsystemBase {
 

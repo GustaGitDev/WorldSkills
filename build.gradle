@@ -45,6 +45,9 @@
     dependencies {
         implementation files('lib/opencv-455.jar') // ou versão compatível
           // Bibliotecas nativas para RoboRIO e Desktop
+        implementation 'com.google.zxing:core:3.5.3'
+        implementation 'com.google.zxing:javase:3.5.3'
+        implementation 'com.google.code.gson:gson:2.11.0' // serve pra fazer json do qr
         nativeZip fileTree(dir: 'lib/native', include: ['*.so'])   // Linux / RoboRIO
         nativeDesktopZip fileTree(dir: 'lib/native', include: ['*.dll']) // Windows
         implementation wpi.deps.wpilib()
