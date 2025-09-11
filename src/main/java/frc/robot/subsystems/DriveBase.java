@@ -5,6 +5,8 @@ import com.studica.frc.TitanQuad;
 import com.studica.frc.TitanQuadEncoder;
 
 import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.DigitalOutput;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
@@ -26,6 +28,11 @@ public class DriveBase extends SubsystemBase {
     private final TitanQuadEncoder leftEncoder;
     private final TitanQuadEncoder rightEncoder;
     private final TitanQuadEncoder backEncoder;
+
+    private DigitalInput startBtn;
+    private DigitalInput eStopBtn;
+    private DigitalOutput runningLED;
+    private DigitalOutput stoppedLED;
 
     private final AHRS navx;
 
@@ -101,6 +108,10 @@ public class DriveBase extends SubsystemBase {
         leftEncoder = new TitanQuadEncoder(leftMotor, Constants.M2, Constants.WHEEL_DIST_PER_TICK);
         rightEncoder = new TitanQuadEncoder(rightMotor, Constants.M0, Constants.WHEEL_DIST_PER_TICK);
         backEncoder = new TitanQuadEncoder(backMotor, Constants.M1, Constants.WHEEL_DIST_PER_TICK);
+        startBtn = new DigitalInput(Constants.START_BUTTON);
+        eStopBtn = new DigitalInput(Constants.E_STOP_SWITCH);
+        runningLED = new DigitalOutput(Constants.RUNNING_LED);
+        stoppedLED = new DigitalOutput(Constants.STOPPED_LED);
 
         // Ajuste reverses conforme hardware (cada chamada inverte):
         // leftEncoder.setReverseDirection();
@@ -204,6 +215,27 @@ public class DriveBase extends SubsystemBase {
     public void resetYaw() {
         navx.zeroYaw();
     }
+
+    public void setRunningLED(Boolean on)
+    {
+        runningLED.set(on);
+    }
+
+    public void setStoppedLED(Boolean on)
+    {
+        stoppedLED.set(on);
+    }
+
+    public boolean getStartButton()
+    {
+        return startBtn.get();
+    }
+
+    public boolean getEStopButton()
+    {
+        return eStopBtn.get();
+    }
+
 
     /**
      * Distancia "reta" (m) — eixo Y do kiwi (back é neutro): Y = (left - right)/2

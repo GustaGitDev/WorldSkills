@@ -17,6 +17,13 @@ public final class Constants {
     public static final int M2 = 2;
     public static final int M3 = 3;
     public static final int DIF_SERVO = 0;
+    
+    ///painel de controle
+    public static final int START_BUTTON            = 9; // Digital input 9
+    public static final int E_STOP_SWITCH           = 11; // Digital input 11;
+    public static final int RUNNING_LED             = 20; // Digital Output 20
+    public static final int STOPPED_LED             = 21; // Digital Output 21
+    ///
 
     public static final double wheelRadius = 51;
     public static final double pulsePerRevolution = 1440;
