@@ -16,6 +16,22 @@
       "name": "WPILib roboRIO Debug",
       "request": "launch",
       "desktop": false,
+    },
+    {
+      "type": "java",
+      "name": "Attach Vision (RPi 5005)",
+      "request": "attach",
+      "hostName": "10.xx.yy.zz",   // <-- IP da Raspberry Pi
+      "port": 5005
+      // "preLaunchTask": "vision: run"   // opcional, se você criou a task que sobe o app na Pi
     }
+  ],
+    "compounds": [
+      {
+        "name": "Robot + Vision",
+        "configurations": [
+          "WPILib roboRIO Debug",
+          "Attach Vision (RPi 5005)" ]
+        }
   ]
 }

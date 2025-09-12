@@ -1,0 +1,38 @@
+plugins {
+id 'java'
+id 'application'
+id 'com.github.johnrengelman.shadow' version '6.0.1' // gera fat-jar
+}
+
+
+java { toolchain { languageVersion = JavaLanguageVersion.of(11) } } // compatível com 2020
+
+
+application {
+mainClass = 'frc.vision.VisionMain'
+}
+
+
+repositories {
+mavenCentral()
+}
+
+
+dependencies {
+// OpenCV + nativos empacotados (dispensa instalação na Pi)
+implementation 'org.bytedeco:opencv-platform:4.8.0-1.5.10'
+
+
+// NetworkTables (combinar com sua stack 2020)
+implementation 'edu.wpi.first.ntcore:ntcore-java:2020.3.2'
+}
+
+
+tasks.withType(JavaCompile) { options.encoding = 'UTF-8' }
+
+
+tasks.named('shadowJar') {
+archiveBaseName.set('vision-app') // resultado: build/libs/vision-app.jar
+archiveClassifier.set('')
+archiveVersion.set('')
+}

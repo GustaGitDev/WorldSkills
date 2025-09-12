@@ -1,0 +1,32 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+    {
+    "label": "vision: build",
+    "type": "shell",
+    "command": "cd vision && ./gradlew shadowJar"
+    },
+    {
+    "label": "vision: deploy",
+    "type": "shell",
+    "dependsOn": "vision: build",
+    "command": "ssh pi@10.xx.yy.zz 'mkdir -p ~/vision && pkill -f vision-app || true' && scp vision/build/libs/vision-app.jar vision/yolov3-tiny.* pi@10.xx.yy.zz:~/vision/"
+    },
+    {
+    "label": "vision: run",
+    "type": "shell",
+    "dependsOn": "vision: deploy",
+    "command": "ssh pi@10.xx.yy.zz 'cd ~/vision && nohup java -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005 -jar vision-app.jar > out.log 2>&1 &'"
+    },
+    {
+    "label": "vision: stop",
+    "type": "shell",
+    "command": "ssh pi@10.xx.yy.zz 'pkill -f vision-app || true'"
+    },
+    {
+    "label": "vision: logs",
+    "type": "shell",
+    "command": "ssh pi@10.xx.yy.zz 'tail -n 200 -f ~/vision/out.log'"
+    }
+    ]
+    }
