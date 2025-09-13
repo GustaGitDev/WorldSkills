@@ -16,7 +16,10 @@ public final class Constants {
     public static final int M1 = 1;
     public static final int M2 = 2;
     public static final int M3 = 3;
-    public static final int DIF_SERVO = 0;
+    public static final int GARSERVO = 0;
+    public static final int LINEARGARRA = 2;
+    public static final int ROTGARRA = 1;
+    
     
     ///painel de controle
     public static final int START_BUTTON            = 9; // Digital input 9

@@ -33,7 +33,7 @@ public class Robot extends TimedRobot {
   @Override
   public void robotInit() {
     // Instantiate our RobotContainer.
-    ds = new MockDS(); // Create the instance
+    //ds = new MockDS(); // Create the instance
     RobotContainer.drivebase.setRunningLED(false);
     RobotContainer.drivebase.setStoppedLED(false);
     countLED = 1;
@@ -45,6 +45,7 @@ public class Robot extends TimedRobot {
   @Override
   public void robotPeriodic() {
     CommandScheduler.getInstance().run();
+
   }
     private void onFrameProduced() {
     long now = System.nanoTime();
@@ -105,8 +106,7 @@ public class Robot extends TimedRobot {
     if (autonomousCommand != null) {
       autonomousCommand.cancel();
     }
-    RobotContainer.driveBase.setRunningLED(false);
-   }
+    RobotContainer.driveBase.setRunningLED(false);}
 
   /** This function is called periodically during operator control. */
   @Override

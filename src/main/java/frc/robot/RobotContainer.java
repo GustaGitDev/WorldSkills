@@ -6,6 +6,7 @@ import frc.robot.subsystems.DepthWallRange;
 import frc.robot.subsystems.DriveBase;
 import frc.robot.subsystems.Monitoramento;
 import frc.robot.subsystems.OMS;
+import frc.robot.subsystems.VisionSubsystem;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -31,8 +32,8 @@ public class RobotContainer {
     public final Monitoramento monitor = new Monitoramento();
     // Alias para compatibilidade com código que usa "drivebase"
     public static final DriveBase drivebase = driveBase;
-
     public static final DepthCamera camera = new DepthCamera();
+    public static final VisionSubsystem vision = new VisionSubsystem(camera);
     public static final DepthWallRange wallRange = new DepthWallRange(camera);
 
     /** Outros subsistemas/controles (se quiser manter estáticos) */

@@ -18,10 +18,9 @@ public class DepthCamera extends SubsystemBase {
     private final Object pipeLock = new Object();
     private Pipeline pipeline;
 
-    private volatile double distanceToWall = -1.0; // leitura central bruta (m)
+    private volatile double distanceToWall = -1.0;
     private volatile boolean initialized = false;
 
-    // Snapshot do último depth frame (16-bit little-endian)
     private volatile byte[] lastDepthBytes = null;
     private volatile int depthWidth = 0;
     private volatile int depthHeight = 0;
@@ -31,6 +30,16 @@ public class DepthCamera extends SubsystemBase {
         frameMat = new Mat(480, 640, CvType.CV_8UC3);
         initCamera();
     }
+
+    // ------------------- NOVO MÉTODO -------------------
+    /** 
+     * Retorna uma cópia defensiva do último frame colorido da Orbbec.
+     * Se ainda não houver frame, retorna um Mat vazio.
+     */
+    public synchronized Mat getLastFrame() {
+        return frameMat.empty() ? new Mat() : frameMat.clone();
+    }
+    // ---------------------------------------------------
 
     private void initCamera() {
         obContext = new OBContext(new DeviceChangedCallback() {
@@ -110,13 +119,11 @@ public class DepthCamera extends SubsystemBase {
         }
     }
 
-    private void processFrameSet(FrameSet frameSet) {
-        // Vídeo
+    private synchronized void processFrameSet(FrameSet frameSet) {
         try (ColorFrame colorFrame = frameSet.getFrame(FrameType.COLOR)) {
             if (colorFrame != null) sendFrameToCameraServer(colorFrame);
         } catch (Exception e) { e.printStackTrace(); }
 
-        // Depth (guarda snapshot + leitura central bruta)
         try (DepthFrame depthFrame = frameSet.getFrame(FrameType.DEPTH)) {
             if (depthFrame != null) processDepthFrame(depthFrame);
         } catch (Exception e) { e.printStackTrace(); }
@@ -141,7 +148,6 @@ public class DepthCamera extends SubsystemBase {
         } catch (Exception e) { e.printStackTrace(); }
     }
 
-    // >>> CORRIGIDO: depth 16-bit little-endian; width/height corretos
     private void processDepthFrame(DepthFrame frame) {
         int width  = frame.getWidth();
         int height = frame.getHeight();
@@ -149,14 +155,12 @@ public class DepthCamera extends SubsystemBase {
         byte[] data = new byte[frame.getDataSize()];
         frame.getData(data);
 
-        // snapshot para processadores externos (ROI, mediana, etc)
         this.lastDepthBytes = data;
         this.depthWidth = width;
         this.depthHeight = height;
 
-        // leitura central bruta (debug)
         int cx = width / 2, cy = height / 2;
-        int idx = (cy * width + cx) * 2; // 2 bytes por pixel
+        int idx = (cy * width + cx) * 2;
         if (idx + 1 < data.length) {
             int d1 = data[idx] & 0xFF;
             int d2 = data[idx + 1] & 0xFF;
@@ -173,11 +177,9 @@ public class DepthCamera extends SubsystemBase {
         SmartDashboard.putNumber("Distance to Wall (cm)", distanceToWall > 0 ? distanceToWall * 100.0 : -1.0);
     }
 
-    // --- Getters ---
     public boolean isInitialized() { return initialized; }
     public double getDistanceToWall() { return distanceToWall; }
 
-    // Snapshots para processadores (cópia defensiva)
     public byte[] getDepthBytesSnapshot() {
         byte[] src = this.lastDepthBytes;
         if (src == null) return null;
