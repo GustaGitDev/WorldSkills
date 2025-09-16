@@ -21,21 +21,11 @@ public class AutonomoTESTE extends SequentialCommandGroup {
         new WaitCommand(0.1),
 
         // 2) Anda reto mantendo 0°
-        new DriveStraightWithPid(51.0, 0.0, null, 20),
+        new DriveStraightWithPid(30.0, 0.0, null, 20),
 
         // 3) Gira a 90° e dá uma pausa
-        new RotateToAngleWithPid(90.0, null, 10), new WaitCommand(1.0),
+        new RotateToAngleWithPid(90.0, null, 10), new WaitCommand(1.0)
 
-        // 4) Anda reto mantendo 90°
-        new DriveStraightWithPid(51.0, 90.0, null, 20),
-
-        new RotateToAngleWithPid(180, null, 10), new WaitCommand(1.0),
-
-        new DriveStraightWithPid(45.0, 180.0, null, 20),
-
-        new RotateToAngleWithPid(-90, null, 10), new WaitCommand(1.0),
-
-        new DriveStraightWithPid(51.0, -90.0, null, 20)
 
     );
   }

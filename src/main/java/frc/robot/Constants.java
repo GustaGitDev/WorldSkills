@@ -33,16 +33,36 @@ public final class Constants {
     public static final double gearRatio = 1 / 1;
     public static final double wheelPulseRatio = pulsePerRevolution * gearRatio;
     public static final double WHEEL_DIST_PER_TICK = (Math.PI * wheelRadius) / pulsePerRevolution;
-    // elevator de correia (se for o caso)
+    
     public static final double pulleyRadius = 7.85;
     public static final double pulsePerRevElevator = 1440;
     public static final double elevatorGearRatio = 1.0 / 2.0;
     public static final double pulleyPulseRatio = pulsePerRevElevator * elevatorGearRatio;
     public static final double ELEVATOR_DIST_TICK = (Math.PI * 2 * pulleyRadius) / pulleyPulseRatio;
+    public static final class Elevator {
+        public static final double POS_LOW  = 0.0;   // “linear baixo”
+        public static final double POS_HIGH = 10.0;  // “linear alto” (ajuste)
+      }
+      
+      public static final class LinearArm {
+        public static final double IN_DEG  = 160.0; // retrai
+        public static final double OUT_DEG = 0.0;   // estende
+      }
+      
+      public static final class Claw {
+        public static final double OPEN_DEG   = 220.0;
+        public static final double CLOSED_DEG = 60.0;
+      }
+      
+      public static final class Rot {
+        public static final double STOW  = 0.0;
+        public static final double GRIP1 = 90.0;
+        public static final double GRIP2 = 210.0;
+      }
 
     public static final class PID {
         // Distância (Y)
-        public static final double kP_Y = 0.05;
+        public static final double kP_Y = 0.03;
         public static final double kI_Y = 0.0;
         public static final double kD_Y = 0.0;
 
