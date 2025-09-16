@@ -14,6 +14,8 @@ import java.util.Map;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+// +++ novo:
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 
 import frc.robot.commands.Teleop;
 import frc.robot.commands.TeleopOMS;
@@ -47,6 +49,17 @@ public class RobotContainer {
     public RobotContainer() {
         // Parâmetros iniciais do filtro da parede (ajuste se quiser)
         wallRange.setParams(10, 2, 0.2); // ROI 21x21, passo 2, EMA alpha=0.2
+
+        // === CONFIG DO HEADING (DriveBase novo) ==========================
+        // Se você adotou ROLL como “eixo de giro” físico, mantenha ROLL_X:
+        driveBase.setHeadingAxis(DriveBase.HeadingAxis.PITCH_Y);
+        // Se voltar a usar o yaw “normal” do robô, troque para:
+        // driveBase.setHeadingAxis(DriveBase.HeadingAxis.YAW_Z);
+
+        // Botão util no Dashboard para zerar o heading integrado quando quiser:
+        SmartDashboard.putData("Zero Integrated Heading",
+            new InstantCommand(() -> driveBase.zeroIntegratedHeading()));
+        // ================================================================
 
         // Inicializa OI/OMS
         oi = new OI();
