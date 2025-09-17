@@ -19,13 +19,10 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 
 import frc.robot.commands.Teleop;
 import frc.robot.commands.TeleopOMS;
-
-import frc.robot.commands.auto.DriveFoward; // open-loop existente
-import frc.robot.commands.auto.DriveFowardWithPid; // legado (opcional no menu)
-import frc.robot.commands.auto.DriveStraightWithPid; // wrapper novo (reta PID)
+import frc.robot.commands.auto.DriveStraightWithPid; 
 import frc.robot.commands.auto.LabirintoA;
-import frc.robot.commands.auto.RotateToAngleWithPid; // wrapper novo (giro PID)
-import frc.robot.commands.auto.AutonomoTESTE; // triângulo
+import frc.robot.commands.auto.RotateToAngleWithPid;
+import frc.robot.commands.auto.AutonomoTESTE;
 
 public class RobotContainer {
 
@@ -50,7 +47,6 @@ public class RobotContainer {
         // Parâmetros iniciais do filtro da parede (ajuste se quiser)
         wallRange.setParams(10, 2, 0.2); // ROI 21x21, passo 2, EMA alpha=0.2
 
-        // === CONFIG DO HEADING (DriveBase novo) ==========================
         // Se você adotou ROLL como “eixo de giro” físico, mantenha ROLL_X:
         driveBase.setHeadingAxis(DriveBase.HeadingAxis.PITCH_Y);
         // Se voltar a usar o yaw “normal” do robô, troque para:
@@ -70,30 +66,17 @@ public class RobotContainer {
         oms.setDefaultCommand(new TeleopOMS());
 
         // ===== AUTONOMOUS MENU (value == label) =====
-        autoChooser.setDefaultOption("Drive Forward (open-loop)", "Drive Forward (open-loop)");
-        autoMode.put("Drive Forward (open-loop)", new DriveFoward());
+        autoChooser.addOption("Reto PID", "Frente Pid");
+        autoMode.put("Frente Pid", new DriveStraightWithPid(1.0, 0.0, null, 6));
 
-        autoChooser.addOption("Drive Straight PID 1.0m @0°", "Drive Straight PID 1.0m @0°");
-        autoMode.put("Drive Straight PID 1.0m @0°", new DriveStraightWithPid(1.0, 0.0, null, 6));
+        autoChooser.addOption("Giro to 90°", "Giro to 90°");
+        autoMode.put("Giro to 90°", new RotateToAngleWithPid(90.0, null, 5));
 
-        autoChooser.addOption("Drive Straight PID 2.0m @0°", "Drive Straight PID 2.0m @0°");
-        autoMode.put("Drive Straight PID 2.0m @0°", new DriveStraightWithPid(2.0, 0.0, null, 20));
-
-        autoChooser.addOption("Rotate to 90°", "Rotate to 90°");
-        autoMode.put("Rotate to 90°", new RotateToAngleWithPid(90.0, null, 5));
-
-        autoChooser.addOption("Rotate to 180°", "Rotate to 180°");
-        autoMode.put("Rotate to 180°", new RotateToAngleWithPid(180.0, null, 7));
-
-        autoChooser.addOption("Triangle Test", "Triangle Test");
-        autoMode.put("Triangle Test", new AutonomoTESTE());
+        autoChooser.addOption("Auto Test", "Auto Test");
+        autoMode.put("Auto Test", new AutonomoTESTE());
 
         autoChooser.addOption("Modulo A", "Modulo A");
         autoMode.put("Modulo A", new LabirintoA());
-
-        // (Opcional) manter wrapper legado visível
-        autoChooser.addOption("DriveFowardWithPid (legacy)", "DriveFowardWithPid (legacy)");
-        autoMode.put("DriveFowardWithPid (legacy)", new DriveFowardWithPid());
 
         // Publica no dashboard
         SmartDashboard.putData("Auto Mode", autoChooser);
@@ -107,6 +90,6 @@ public class RobotContainer {
     /** Retorna o comando autônomo selecionado */
     public Command getAutonomousCommand() {
         String mode = autoChooser.getSelected();
-        return autoMode.getOrDefault(mode, new DriveFoward());
+        return autoMode.getOrDefault(mode, new LabirintoA());
     }
 }

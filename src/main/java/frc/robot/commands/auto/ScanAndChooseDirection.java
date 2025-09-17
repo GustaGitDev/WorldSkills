@@ -13,15 +13,19 @@ import frc.robot.subsystems.DepthWallRange;
  * Varre esquerda e direita, mede a distância (DepthWallRange) e decide seguir
  * pelo lado com MAIOR espaço livre.
  */
+
+@SuppressWarnings("unused")
 public class ScanAndChooseDirection extends SequentialCommandGroup {
 
     private static final DriveBase drive = RobotContainer.driveBase;
     private static final DepthWallRange wall = RobotContainer.wallRange;
 
     // parâmetros
+    
     private final double stopDistMeters; // p.ex. 0.60
     private final double maxStepMeters; // p.ex. 3.0
     private final double settleSeconds; // p.ex. 0.25
+    
     private final double hysteresisMeters; // p.ex. 0.05
 
     // medições

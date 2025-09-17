@@ -9,6 +9,7 @@ public class Teleop extends CommandBase {
 
     private final DriveBase drivebase;
     private final OI oi;
+    
 
     private double inputLeftY = 0;
     private double inputLeftX = 0;
@@ -27,8 +28,9 @@ public class Teleop extends CommandBase {
 
     // Construtor recebendo RobotContainer
     public Teleop(RobotContainer container) {
-        this.drivebase = container.drivebase;
-        this.oi = container.oi;
+        
+        this.drivebase = RobotContainer.drivebase;
+        this.oi = RobotContainer.oi;
         addRequirements(drivebase);
     }
 

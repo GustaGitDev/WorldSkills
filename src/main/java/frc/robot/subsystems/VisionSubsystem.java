@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class VisionSubsystem extends SubsystemBase {
   private final VisionPublisher publisher = new VisionPublisher();
+  @SuppressWarnings("unused")
   private final DepthCamera camera;
   private final CvSource visionStream;
   private final CvSource maskStream;

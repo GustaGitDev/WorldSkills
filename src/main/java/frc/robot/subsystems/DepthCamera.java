@@ -9,6 +9,7 @@ import org.opencv.core.CvType;
 import org.opencv.imgcodecs.Imgcodecs;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
+@SuppressWarnings("deprecation")
 public class DepthCamera extends SubsystemBase {
 
     private CvSource outputStream;
