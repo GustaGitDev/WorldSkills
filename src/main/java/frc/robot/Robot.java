@@ -26,18 +26,21 @@ public class Robot extends TimedRobot {
    
   }
 
+  public void controlMockDS() {
+    if (RobotContainer.driveBase.getStartButton() && !active) {
+        ds.enable();
+        active = true;
+    } else if (RobotContainer.driveBase.getEStopButton() && active) {
+        ds.disable();
+        active = false;
+    }
+}
+
+
   @Override
   public void robotPeriodic() {
     CommandScheduler.getInstance().run();
-
-    if (RobotContainer.driveBase.getStartButton() && !active) {
-      ds.enable();
-      active = true;
-  }
-    if (RobotContainer.driveBase.getEStopButton() && active) {
-      ds.disable();
-      active = false;
-    }
+    controlMockDS();
   }
 
   @Override
