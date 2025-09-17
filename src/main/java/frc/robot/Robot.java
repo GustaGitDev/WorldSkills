@@ -10,7 +10,6 @@ package frc.robot;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.subsystems.Monitoramento;
 import com.studica.frc.MockDS;
 
 /**
@@ -31,27 +30,22 @@ public class Robot extends TimedRobot {
 
   /** This function is run when the robot is first started up and should be used for any init code. */
   @Override
-  public void robotInit() {
+  public void robotInit() 
+  {
     // Instantiate our RobotContainer.
-    //ds = new MockDS(); // Create the instance
+    m_robotContainer = new RobotContainer();
+    ds = new MockDS(); // Create the instance
     RobotContainer.drivebase.setRunningLED(false);
     RobotContainer.drivebase.setStoppedLED(false);
     countLED = 1;
     prevLEDValue = true;
-    m_robotContainer = new RobotContainer();
+   
   }
 
   /** This function is called every robot packet, no matter the mode. */
   @Override
   public void robotPeriodic() {
     CommandScheduler.getInstance().run();
-
-  }
-    private void onFrameProduced() {
-    long now = System.nanoTime();
-    double dt = (now - lastFrameNs) / 1e9;
-    lastFrameNs = now;
-    m_robotContainer.monitor.noteFrameProduced(dt);
 
     if (!RobotContainer.driveBase.getStartButton() && !active)
     {
@@ -64,9 +58,7 @@ public class Robot extends TimedRobot {
       ds.disable();
       active = false;
     }
-     // If the start button is pushed and the system is not active
-         
-    }
+  }
 
 
   /** This function is called once each time the robot enters Disabled mode. */
@@ -106,7 +98,8 @@ public class Robot extends TimedRobot {
     if (autonomousCommand != null) {
       autonomousCommand.cancel();
     }
-    RobotContainer.driveBase.setRunningLED(false);}
+      RobotContainer.driveBase.setRunningLED(false);
+    }
 
   /** This function is called periodically during operator control. */
   @Override

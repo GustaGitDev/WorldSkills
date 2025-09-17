@@ -149,6 +149,8 @@ public class DriveBase extends SubsystemBase {
         rightMotor = new TitanQuad(Constants.TITAN_ID, Constants.M0);
         backMotor  = new TitanQuad(Constants.TITAN_ID, Constants.M1);
 
+        Timer.delay(1.0); // Wait 1s for Titan to configure
+
         leftEncoder  = new TitanQuadEncoder(leftMotor,  Constants.M2, Constants.WHEEL_DIST_PER_TICK);
         rightEncoder = new TitanQuadEncoder(rightMotor, Constants.M0, Constants.WHEEL_DIST_PER_TICK);
         backEncoder  = new TitanQuadEncoder(backMotor,  Constants.M1, Constants.WHEEL_DIST_PER_TICK);
@@ -202,6 +204,42 @@ public class DriveBase extends SubsystemBase {
         }
     }
 
+      /**
+     * Turn the Running LED on or off
+     * @param on - set to true to turn on the LED
+     */
+    public void setRunningLED(Boolean on)
+    {
+        runningLED.set(on);
+    }
+
+     /**
+     * Turn the stopped LED on or off
+     * @param on - set to true to turn on the LED
+     */
+    public void setStoppedLED(Boolean on)
+    {
+        stoppedLED.set(on);
+    }
+
+    /**
+     * Get the value of the start button
+     * @return - the current logic of the start button. If wired correctly this will be active low.
+     */
+    public boolean getStartButton()
+    {
+        return startBtn.get();
+    }
+
+    /**
+     * Get the value of the e-stop switch
+     * @return - the current logic of the e-stop switch. If wired correctly this will be active low.
+     */
+    public boolean getEStopButton()
+    {
+        return eStopBtn.get();
+    }
+
     // Sensores
     public double getLeftEncoderDistance()  { return leftEncoder.getEncoderDistance(); }
     public double getRightEncoderDistance() { return rightEncoder.getEncoderDistance(); }
@@ -211,10 +249,6 @@ public class DriveBase extends SubsystemBase {
 
     public void resetEncoders() { leftEncoder.reset(); rightEncoder.reset(); backEncoder.reset(); }
     public void resetYaw() { navx.zeroYaw(); }
-    public void setRunningLED(Boolean on) { runningLED.set(on); }
-    public void setStoppedLED(Boolean on) { stoppedLED.set(on); }
-    public boolean getStartButton() { return startBtn.get(); }
-    public boolean getEStopButton()  { return eStopBtn.get(); }
 
     public double getForwardDistance() {
         return (getLeftEncoderDistance() - getRightEncoderDistance()) / 2.0;

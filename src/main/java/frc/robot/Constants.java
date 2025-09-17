@@ -22,11 +22,13 @@ public final class Constants {
     
     
     ///painel de controle
-    public static final int START_BUTTON            = 9; // Digital input 9
-    public static final int E_STOP_SWITCH           = 11; // Digital input 11;
-    public static final int RUNNING_LED             = 20; // Digital Output 20
-    public static final int STOPPED_LED             = 21; // Digital Output 21
-    ///
+    public static final int START_BUTTON            = 8; // Digital input 9
+    /** E-STOP */
+    public static final int E_STOP_SWITCH           = 10; // Digital input 11;
+    /** Running LED */
+    public static final int RUNNING_LED             = 15; // Digital Output 20
+    /** Stopped LED */
+    public static final int STOPPED_LED             = 16; // Digital Output 
 
     public static final double wheelRadius = 51;
     public static final double pulsePerRevolution = 1440;
